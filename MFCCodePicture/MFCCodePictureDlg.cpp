@@ -7,11 +7,12 @@
 #include "MFCCodePicture.h"
 #include "MFCCodePictureDlg.h"
 #include "afxdialogex.h"
-
+#include<iostream>
+#include<fstream>
+#include<string>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
 
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
@@ -20,12 +21,12 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 대화 상자 데이터입니다.
+	// 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
 // 구현입니다.
@@ -102,6 +103,11 @@ BOOL CMFCCodePictureDlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
+	int nWidth = ::GetSystemMetrics(SM_CXSCREEN);
+	int nHeight = ::GetSystemMetrics(SM_CYSCREEN);
+	this->MoveWindow(0, 0, nWidth, nHeight);
+
+
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -161,12 +167,52 @@ void CMFCCodePictureDlg::OnBnClickedButton1()
 	CString str = _T("All files(*.*)|*.*|"); // 모든 파일 표시
 	// _T("Excel 파일 (*.xls, *.xlsx) |*.xls; *.xlsx|"); 와 같이 확장자를 제한하여 표시할 수 있음
 	CFileDialog dlg(TRUE, _T("*.dat"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, str, this);
-
+	CString strPathName;
 	if (dlg.DoModal() == IDOK)
 	{
-		CString strPathName = dlg.GetPathName();
+		strPathName = dlg.GetPathName();
 		// 파일 경로를 가져와 사용할 경우, Edit Control에 값 저장
 		SetDlgItemText(IDC_STATIC, strPathName);
 	}
+
+	LPCTSTR lpszTemp = strPathName;
+	CFile file;
+		file.Open(lpszTemp, CFile::modeRead);
+		UINT length = 1;
+		int xCnt = 0;
+		int yCnt = 0;
+		int xSize = ::GetSystemMetrics(SM_CXSCREEN);
+		int ySize = ::GetSystemMetrics(SM_CYSCREEN);
+		int xSlice = xSize / 20;
+		int ySlice = ySize / 20;
+		while (length > 0)
+		{
+			char cbuf[3];
+			length = file.Read(cbuf, 3);
+			CString str1;
+			str1 = cbuf;
+			str1 = str1.Left(3);
+			SetDlgItemText(IDC_STATIC, str1);
+			//Sleep(10);
+
+			CClientDC dc(this);
+
+			COLORREF color = RGB(str1[0], str1[1], str[2]);
+			CBrush brush;
+			brush.CreateSolidBrush(color);
+			CBrush* oldBrush = dc.SelectObject(&brush);
+			dc.Rectangle(xCnt * xSize/ xSlice, yCnt * ySize/ ySlice, xCnt * xSize/ xSlice + xSize/ xSlice, yCnt * ySize/ ySlice + ySize/ ySlice);
+			dc.SelectObject(oldBrush);
+			brush.DeleteObject();
+			xCnt++;
+			if (xCnt >= xSlice)
+			{
+				xCnt = 0;
+				yCnt++;
+			}
+			if (yCnt >= ySlice)
+				break;
+		}
+		file.Close();
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
