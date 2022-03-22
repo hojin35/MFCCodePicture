@@ -105,7 +105,7 @@ BOOL CMFCCodePictureDlg::OnInitDialog()
 
 	int nWidth = ::GetSystemMetrics(SM_CXSCREEN);
 	int nHeight = ::GetSystemMetrics(SM_CYSCREEN);
-	this->MoveWindow(0, 0, nWidth, nHeight);
+	this->MoveWindow(0, 0, nWidth, nHeight - 50);
 
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -164,6 +164,7 @@ HCURSOR CMFCCodePictureDlg::OnQueryDragIcon()
 
 void CMFCCodePictureDlg::OnBnClickedButton1()
 {
+	
 	CString str = _T("All files(*.*)|*.*|"); // 모든 파일 표시
 	// _T("Excel 파일 (*.xls, *.xlsx) |*.xls; *.xlsx|"); 와 같이 확장자를 제한하여 표시할 수 있음
 	CFileDialog dlg(TRUE, _T("*.dat"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, str, this);
@@ -178,8 +179,8 @@ void CMFCCodePictureDlg::OnBnClickedButton1()
 
 	int xCnt = 0;
 	int yCnt = 0;
-	int windowXSize = ::GetSystemMetrics(SM_CXSCREEN);
-	int windowYSize = ::GetSystemMetrics(SM_CYSCREEN);
+	int windowXSize = ::GetSystemMetrics(SM_CXSCREEN) - 100;
+	int windowYSize = ::GetSystemMetrics(SM_CYSCREEN) - 200;
 
 	int cnt = 0;
 	LPCTSTR lpszTemp = strPathName;
@@ -210,7 +211,7 @@ void CMFCCodePictureDlg::OnBnClickedButton1()
 		//Sleep(10);
 
 		CClientDC dc(this);
-
+		
 		COLORREF color = RGB(str1[0], str1[1], str[2]);
 		CBrush brush;
 		brush.CreateSolidBrush(color);
