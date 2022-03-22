@@ -175,44 +175,59 @@ void CMFCCodePictureDlg::OnBnClickedButton1()
 		SetDlgItemText(IDC_STATIC, strPathName);
 	}
 
+
+	int xCnt = 0;
+	int yCnt = 0;
+	int windowXSize = ::GetSystemMetrics(SM_CXSCREEN);
+	int windowYSize = ::GetSystemMetrics(SM_CYSCREEN);
+
+	int cnt = 0;
 	LPCTSTR lpszTemp = strPathName;
 	CFile file;
-		file.Open(lpszTemp, CFile::modeRead);
-		UINT length = 1;
-		int xCnt = 0;
-		int yCnt = 0;
-		int xSize = ::GetSystemMetrics(SM_CXSCREEN);
-		int ySize = ::GetSystemMetrics(SM_CYSCREEN);
-		int xSlice = xSize / 20;
-		int ySlice = ySize / 20;
-		while (length > 0)
+	file.Open(lpszTemp, CFile::modeRead);
+	UINT length = 1;
+	int z = file.GetLength();
+	int QQ = file.GetLength();
+	z = z / 3;
+	int xSlice = 1;
+	int ySlice = 1;
+	for (int i = 2, j = 1; z >= i * j; i += 2, j += 1)
+	{
+		xSlice = j;
+		ySlice = i;
+	}
+
+	int xSize = windowXSize / xSlice;
+	int ySize = windowYSize / ySlice;
+	while (length > 0)
+	{
+		char cbuf[3];
+		length = file.Read(cbuf, 3);
+		CString str1;
+		str1 = cbuf;
+		str1 = str1.Left(3);
+		SetDlgItemText(IDC_STATIC, str1);
+		//Sleep(10);
+
+		CClientDC dc(this);
+
+		COLORREF color = RGB(str1[0], str1[1], str[2]);
+		CBrush brush;
+		brush.CreateSolidBrush(color);
+		CBrush* oldBrush = dc.SelectObject(&brush);
+		dc.Rectangle(xCnt * xSize, yCnt * ySize, xCnt * xSize + xSize, yCnt * ySize + ySize);
+		dc.SelectObject(oldBrush);
+		brush.DeleteObject();
+		xCnt++;
+		if (xCnt >= xSlice)
 		{
-			char cbuf[3];
-			length = file.Read(cbuf, 3);
-			CString str1;
-			str1 = cbuf;
-			str1 = str1.Left(3);
-			SetDlgItemText(IDC_STATIC, str1);
-			//Sleep(10);
-
-			CClientDC dc(this);
-
-			COLORREF color = RGB(str1[0], str1[1], str[2]);
-			CBrush brush;
-			brush.CreateSolidBrush(color);
-			CBrush* oldBrush = dc.SelectObject(&brush);
-			dc.Rectangle(xCnt * xSize/ xSlice, yCnt * ySize/ ySlice, xCnt * xSize/ xSlice + xSize/ xSlice, yCnt * ySize/ ySlice + ySize/ ySlice);
-			dc.SelectObject(oldBrush);
-			brush.DeleteObject();
-			xCnt++;
-			if (xCnt >= xSlice)
-			{
-				xCnt = 0;
-				yCnt++;
-			}
-			if (yCnt >= ySlice)
-				break;
+			xCnt = 0;
+			yCnt++;
 		}
-		file.Close();
+		if (yCnt >= ySlice)
+			break;
+		cnt++;
+	}
+	file.Close();
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
